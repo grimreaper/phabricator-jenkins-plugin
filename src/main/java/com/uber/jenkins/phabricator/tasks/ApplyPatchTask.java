@@ -77,7 +77,7 @@ public class ApplyPatchTask extends Task {
     @Override
     protected void execute() {
         try {
-            List<String> arcPatchParams = new ArrayList<String>(Arrays.asList("--nobranch", "--diff", diffID));
+            List<String> arcPatchParams = new ArrayList<String>(Arrays.asList("--diff", diffID));
             if (!createCommit) {
                 arcPatchParams.add("--nocommit");
             }
