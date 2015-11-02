@@ -77,27 +77,6 @@ public class ApplyPatchTask extends Task {
     @Override
     protected void execute() {
         try {
-            int exitCode = starter.launch()
-                    .cmds(Arrays.asList(gitPath, "reset", "--hard", baseCommit))
-                    .stdout(logStream)
-                    .join();
-
-            if (exitCode != 0) {
-                info("Got non-zero exit code resetting to base commit " + baseCommit + ": " + exitCode);
-            }
-
-            // Clean workspace, otherwise `arc patch` may fail
-            starter.launch()
-                    .stdout(logStream)
-                    .cmds(Arrays.asList(gitPath, "clean", "-fd", "-f"))
-                    .join();
-
-            // Update submodules recursively.
-            starter.launch()
-                    .stdout(logStream)
-                    .cmds(Arrays.asList(gitPath, "submodule", "update", "--init", "--recursive"))
-                    .join();
-
             List<String> arcPatchParams = new ArrayList<String>(Arrays.asList("--nobranch", "--diff", diffID));
             if (!createCommit) {
                 arcPatchParams.add("--nocommit");
@@ -109,7 +88,7 @@ public class ApplyPatchTask extends Task {
                     conduitToken,
                     arcPatchParams.toArray(new String[arcPatchParams.size()]));
 
-            exitCode = arc.callConduit(starter.launch(), logStream);
+            int exitCode = arc.callConduit(starter.launch(), logStream);
             this.result = exitCode == 0 ? Result.SUCCESS : Result.FAILURE;
         } catch (IOException e) {
             e.printStackTrace(logStream);
